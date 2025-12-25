@@ -61,7 +61,9 @@ class myConfig:
         self.specific_experiment_val = None
 
         # Distance Learning Params
-            #  Contrastive Loss Parameters
+            # Distance Metric
+        self.distance_metric = "cosine_similarity"
+            # Contrastive Loss Parameters
         self.negative_margin = 1.0
         self.positive_margin = 0.8 # For Cosine Similarity loss
             # Output Embedding Dimension
@@ -74,4 +76,8 @@ class myConfig:
         self.n_samples_per_class = 10
 
         # Log File
-        self.logs_path = "
+        self.logs_path = "./logs"
+        
+        self.log_filename = f"exp_{self.model_name}_{self.specific_experiment}"
+        # Random Seed
+        self.rand_seed = 14
