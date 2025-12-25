@@ -12,7 +12,7 @@ from src.samplers import ProtoBatchSampler, DistanceBatchSampler
 
 from src.myLogger import myLogger
 from src.helpers import get_CI_stats, get_support_points
-from src.losses import myEuclideanContrastiveLoss, PrototypeCELoss
+from src.losses import myEuclideanContrastiveLoss, PrototypeCELoss, CosineSimilarityContrastiveLossV2
 
 
 class myTrainer:
@@ -581,7 +581,10 @@ class myTrainerDistance:
             optimizer.zero_grad()
 
             pred = model(inp)
-            loss = myEuclideanContrastiveLoss(neg_margin=self.config.negative_margin)(embeddings=pred, labels=gt)
+            if self.config.distance_metric == "cosine_similarity":
+                loss = CosineSimilarityContrastiveLossV2(neg_margin=self.config.negative_margin, pos_margin=self.config.positive_margin)(x=pred, labels=gt)
+            else:
+                loss = myEuclideanContrastiveLoss(neg_margin=self.config.negative_margin)(embeddings=pred, labels=gt)
             
             loss.backward()
             optimizer.step()
@@ -691,7 +694,10 @@ class myTrainerDistance:
     
     def compute_metrics(self, pred_embeddings, supp_embeddings, gt, supp_labels):
         # Contrastive Loss on val set
-        loss = myEuclideanContrastiveLoss(neg_margin=self.config.negative_margin)(pred_embeddings, gt) 
+        if self.config.distance_metric == "cosine_similarity":
+            loss = CosineSimilarityContrastiveLossV2(neg_margin=self.config.negative_margin, pos_margin=self.config.positive_margin)(x=pred_embeddings, labels=gt)
+        else:
+            loss = myEuclideanContrastiveLoss(neg_margin=self.config.negative_margin)(embeddings=pred_embeddings, labels=gt)
 
         # --- k-NN Calculation ---
         # Calculate distance between Batch and Support
